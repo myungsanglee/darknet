@@ -1,0 +1,12 @@
+voc 2007 val mAP (2510 images)
+53.89% (2.29% 향상)
+
+voc 2007 test mAP (4952 images)
+53.68% (2.58% 향상)
+
+FPS
+include video_capturing + NMS + drawing_bboxes
+AVG_FPS: 139.2 (비슷)
+
+exclude video_capturing + NMS + drawing_bboxes
+AVG_FPS: 307.3 (8.57% 하락)

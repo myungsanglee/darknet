@@ -1,0 +1,5 @@
+classes= 80
+train  = custom_train/yolov4-tiny-3l-custom-coco/train.txt
+valid  = custom_train/yolov4-tiny-3l-custom-coco/val.txt
+names = custom_train/yolov4-tiny-3l-custom-coco/coco.names
+backup = custom_train/yolov4-tiny-3l-custom-coco/weights/

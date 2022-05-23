@@ -1,0 +1,12 @@
+voc 2007 val mAP (2510 images)
+51.60%
+
+voc 2007 test mAP (4952 images)
+51.10%
+
+FPS
+include video_capturing + NMS + drawing_bboxes
+AVG_FPS: 138.8
+
+exclude video_capturing + NMS + drawing_bboxes
+AVG_FPS: 336.1

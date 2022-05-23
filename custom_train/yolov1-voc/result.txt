@@ -1,0 +1,5 @@
+voc 2007 val mAP (2510 images) (train by pretrained weights)
+9.77%
+
+voc 2007 test mAP (4952 images) (train by pretrained weights)
+8.90%

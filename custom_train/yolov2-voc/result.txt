@@ -1,0 +1,5 @@
+voc 2007 val mAP (2510 images)
+61.18%
+
+voc 2007 test mAP (4952 images)
+60.63%

@@ -1,0 +1,5 @@
+classes= 80
+train  = custom_train/fsnet/train.txt
+valid  = custom_train/fsnet/val.txt
+names = custom_train/fsnet/coco.names
+backup = custom_train/fsnet/fsnet_02_weights/
