@@ -357,16 +357,16 @@ def check_map_by_custom_map_calculator():
 def check_map_by_coco_map_calculator():
     network, class_names, class_colors = darknet.load_network(
         # 'custom_train/yolov2-voc/yolov2-voc.cfg',
-        # 'custom_train/yolov3-custom-voc/yolov3-custom-voc.cfg',
-        'cfg/yolov4.cfg',
+        'custom_train/yolov3-custom-voc/yolov3-custom-voc.cfg',
+        # 'cfg/yolov4.cfg',
         # 'custom_train/yolov2-voc/voc.data',
-        # 'custom_train/yolov3-custom-voc/voc.data',
-        'custom_train/yolov3-tiny-3l-custom-coco/coco.data',
+        'custom_train/yolov3-custom-voc/voc.data',
+        # 'custom_train/yolov3-tiny-3l-custom-coco/coco.data',
         # 'custom_train/yolov2-voc/weights_random=0/yolov2-voc_best.weights',
         # 'custom_train/yolov2-voc/weights_random=1/yolov2-voc_best.weights',
         # 'custom_train/yolov2-voc/weights_with_pretrained/yolov2-voc_best.weights',
-        # 'custom_train/yolov3-custom-voc/weights/yolov3-custom-voc_best.weights',
-        'yolov4.weights',
+        'custom_train/yolov3-custom-voc/weights/yolov3-custom-voc_best.weights',
+        # 'yolov4.weights',
         batch_size=1
     )
 
@@ -379,8 +379,8 @@ def check_map_by_coco_map_calculator():
     # with open(names_txt_path, 'r') as f:
     #     org_name_list = f.read().splitlines()
 
-    # json_path = '/home/fssv2/myungsang/datasets/voc/coco_format/val.json'
-    json_path = '/home/fssv2/myungsang/datasets/coco_2017/annotations/instances_val2017.json'
+    json_path = '/home/fssv2/myungsang/datasets/voc/coco_format/val.json'
+    # json_path = '/home/fssv2/myungsang/datasets/coco_2017/annotations/instances_val2017.json'
     coco = COCO(json_path)
 
     imgs = coco.loadImgs(coco.getImgIds())
@@ -393,8 +393,8 @@ def check_map_by_coco_map_calculator():
     results_json_path = os.path.join(os.getcwd(), 'results.json')
 
     for (img_id, img_name, width, height) in tqdm(imgs_info):
-        # img_path = os.path.join('/home/fssv2/myungsang/datasets/voc/yolo_format/val', img_name)
-        img_path = os.path.join('/home/fssv2/myungsang/datasets/coco_2017/val2017', img_name)
+        img_path = os.path.join('/home/fssv2/myungsang/datasets/voc/yolo_format/val', img_name)
+        # img_path = os.path.join('/home/fssv2/myungsang/datasets/coco_2017/val2017', img_name)
 
         detections = get_detection(
             img_path, 
@@ -422,7 +422,7 @@ def check_map_by_coco_map_calculator():
                 "score": float(confidence)
             })
     
-    print(f'detection count: {len(results)}')
+    # print(f'detection count: {len(results)}')
     
     with open(results_json_path, "w") as f:
         json.dump(results, f, indent=4)
@@ -487,10 +487,13 @@ def make_pred_result_file_for_public_map_calculator():
 def show_result():
     network, class_names, class_colors = darknet.load_network(
         'custom_train/yolov2-voc/yolov2-voc.cfg',
+        # 'custom_train/yolov3-custom-voc/yolov3-custom-voc.cfg',
         'custom_train/yolov2-voc/voc.data',
+        # 'custom_train/yolov3-custom-voc/voc.data',
         'custom_train/yolov2-voc/weights_random=0/yolov2-voc_best.weights',
         # 'custom_train/yolov2-voc/weights_random=1/yolov2-voc_best.weights',
         # 'custom_train/yolov2-voc/weights_with_pretrained/yolov2-voc_best.weights',
+        # 'custom_train/yolov3-custom-voc/weights/yolov3-custom-voc_best.weights',
         batch_size=1
     )
 
@@ -499,6 +502,7 @@ def show_result():
         name_list = f.read().splitlines()
 
     val_txt_path = '/home/fssv2/myungsang/datasets/voc/yolo_format/val.txt'
+    # val_txt_path = '/home/fssv2/myungsang/datasets/tmp/val.txt'
     with open(val_txt_path, 'r') as f:
         img_list = f.read().splitlines()
         
@@ -727,8 +731,8 @@ def check_inference_speed_by_image():
     
 
 if __name__ == "__main__":
-    check_map_by_custom_map_calculator()
-    # check_map_by_coco_map_calculator()
+    # check_map_by_custom_map_calculator()
+    check_map_by_coco_map_calculator()
     # make_pred_result_file_for_public_map_calculator()
     # show_result()
     # make_video()
