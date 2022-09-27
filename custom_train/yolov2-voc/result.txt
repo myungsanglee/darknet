@@ -1,5 +1,7 @@
-voc 2007 val mAP (2510 images)
+[random=1]
+voc 2007 val mAP@0.5 (2510 images) (conf > 0.005)
 61.18%
 
-voc 2007 test mAP (4952 images)
-60.63%
+[random=0]
+voc 2007 val mAP@0.5 (2510 images) (conf > 0.005)
+56.68%

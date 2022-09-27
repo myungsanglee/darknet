@@ -1,0 +1,2 @@
+COCO 2017 Only Person val mAP@0.5 (5000 images) (conf > 0.005)
+69.51%

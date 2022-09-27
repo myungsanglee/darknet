@@ -12,7 +12,7 @@ from ctypes import *
 import math
 import random
 import os
-
+import time
 
 class BOX(Structure):
     _fields_ = [("x", c_float),
@@ -227,6 +227,43 @@ def detect_image(network, class_names, image, thresh=.5, hier_thresh=.5, nms=.45
         do_nms_sort(detections, num, len(class_names), nms)
     predictions = remove_negatives(detections, class_names, num)
     predictions = decode_detection(predictions)
+    free_detections(detections, num)
+    return sorted(predictions, key=lambda x: x[1])
+
+
+def decode_prediction(network, class_names, image, thresh=.25, hier_thresh=.5, nms=.45):
+    """
+        Returns a list with highest confidence class and their bbox
+    """
+    pnum = pointer(c_int(0))
+    predict_image(network, image)
+    detections = get_network_boxes(network, image.w, image.h,
+                                   thresh, hier_thresh, None, 0, pnum, 0)
+    num = pnum[0]
+    if nms:
+        do_nms_sort(detections, num, len(class_names), nms)
+    predictions = remove_negatives(detections, class_names, num)
+    free_detections(detections, num)
+    return sorted(predictions, key=lambda x: x[1])
+
+
+def decode_prediction_and_inference_speed_check(network, class_names, image, thresh=.25, hier_thresh=.5, nms=.5, fps=[]):
+    """
+        Returns a list with highest confidence class and their bbox
+    """
+    pnum = pointer(c_int(0))
+    start = time.time()
+    predict_image(network, image)
+    detections = get_network_boxes(network, image.w, image.h,
+                                   thresh, hier_thresh, None, 0, pnum, 0)
+    inference_fps = int(1/(time.time() - start))
+    fps.append(inference_fps)
+    print(f'\rInference: {inference_fps} FPS', end='')
+    
+    num = pnum[0]
+    if nms:
+        do_nms_sort(detections, num, len(class_names), nms)
+    predictions = remove_negatives(detections, class_names, num)
     free_detections(detections, num)
     return sorted(predictions, key=lambda x: x[1])
 

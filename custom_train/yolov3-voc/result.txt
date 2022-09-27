@@ -1,0 +1,6 @@
+[random=0]
+voc 2007 val mAP (2510 images)
+%
+
+voc 2007 test mAP (4952 images)
+%

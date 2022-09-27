@@ -1,5 +1,0 @@
-classes= 80
-train  = custom_train/yolov4-coco/train.txt
-valid  = custom_train/yolov4-coco/val.txt
-names = custom_train/yolov4-coco/coco.names
-backup = custom_train/yolov4-coco/weights/

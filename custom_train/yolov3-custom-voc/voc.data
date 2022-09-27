@@ -1,0 +1,5 @@
+classes= 20
+train  = custom_train/yolov3-custom-voc/train.txt
+valid  = custom_train/yolov3-custom-voc/val.txt
+names = custom_train/yolov3-custom-voc/voc.names
+backup = custom_train/yolov3-custom-voc/weights/

@@ -1,0 +1,3 @@
+[random=0]
+voc 2007 val mAP@0.5 (2510 images) (conf > 0.005)
+64.25%
