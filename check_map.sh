@@ -9,10 +9,10 @@ custom_train/focus/220812_B/front_v2/yolov4-tiny-custom-v2_416/weights/yolov4-ti
 -points 0
 
 ./darknet detector map \
-custom_train/yolov4-tiny-custom-v4_coco-person_416/coco.data \
-custom_train/yolov4-tiny-custom-v4_coco-person_416/yolov4-tiny-custom-v4_coco-person_416.cfg \
-custom_train/yolov4-tiny-custom-v4_coco-person_416/weights/yolov4-tiny-custom-v4_coco-person_416_best.weights \
--points 0
+custom_train/yolov2-voc/voc.data \
+custom_train/yolov2-voc/yolov2-voc.cfg \
+custom_train/yolov2-voc/weights_random=0/yolov2-voc_best.weights \
+-points 101
 
 #./darknet detector map \
 custom_train/yolov3-tiny-3l-custom-coco/coco.data \

@@ -356,16 +356,16 @@ def check_map_by_custom_map_calculator():
 
 def check_map_by_coco_map_calculator():
     network, class_names, class_colors = darknet.load_network(
-        # 'custom_train/yolov2-voc/yolov2-voc.cfg',
-        'custom_train/yolov3-custom-voc/yolov3-custom-voc.cfg',
+        'custom_train/yolov2-voc/yolov2-voc.cfg',
+        # 'custom_train/yolov3-custom-voc/yolov3-custom-voc.cfg',
         # 'cfg/yolov4.cfg',
-        # 'custom_train/yolov2-voc/voc.data',
-        'custom_train/yolov3-custom-voc/voc.data',
+        'custom_train/yolov2-voc/voc.data',
+        # 'custom_train/yolov3-custom-voc/voc.data',
         # 'custom_train/yolov3-tiny-3l-custom-coco/coco.data',
-        # 'custom_train/yolov2-voc/weights_random=0/yolov2-voc_best.weights',
+        'custom_train/yolov2-voc/weights_random=0/yolov2-voc_best.weights',
         # 'custom_train/yolov2-voc/weights_random=1/yolov2-voc_best.weights',
         # 'custom_train/yolov2-voc/weights_with_pretrained/yolov2-voc_best.weights',
-        'custom_train/yolov3-custom-voc/weights/yolov3-custom-voc_best.weights',
+        # 'custom_train/yolov3-custom-voc/weights/yolov3-custom-voc_best.weights',
         # 'yolov4.weights',
         batch_size=1
     )
@@ -426,6 +426,9 @@ def check_map_by_coco_map_calculator():
     
     with open(results_json_path, "w") as f:
         json.dump(results, f, indent=4)
+    
+    img_ids = sorted(coco.getImgIds())
+    cat_ids = sorted(coco.getCatIds())
 
     # load detection JSON file from the disk
     cocovalPrediction = coco.loadRes(results_json_path)
@@ -435,6 +438,8 @@ def check_map_by_coco_map_calculator():
  
     # run evaluation for each image, accumulates per image results
     # display the summary metrics of the evaluation
+    cocoEval.params.imgIds  = img_ids
+    cocoEval.params.catIds = cat_ids
     cocoEval.evaluate()
     cocoEval.accumulate()
     cocoEval.summarize()
