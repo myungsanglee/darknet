@@ -356,16 +356,16 @@ def check_map_by_custom_map_calculator():
 
 def check_map_by_coco_map_calculator():
     network, class_names, class_colors = darknet.load_network(
-        'custom_train/yolov2-voc/yolov2-voc.cfg',
-        # 'custom_train/yolov3-custom-voc/yolov3-custom-voc.cfg',
+        # 'custom_train/yolov2-voc/yolov2-voc.cfg',
+        'custom_train/yolov3-custom-voc/yolov3-custom-voc.cfg',
         # 'cfg/yolov4.cfg',
-        'custom_train/yolov2-voc/voc.data',
-        # 'custom_train/yolov3-custom-voc/voc.data',
+        # 'custom_train/yolov2-voc/voc.data',
+        'custom_train/yolov3-custom-voc/voc.data',
         # 'custom_train/yolov3-tiny-3l-custom-coco/coco.data',
-        'custom_train/yolov2-voc/weights_random=0/yolov2-voc_best.weights',
+        # 'custom_train/yolov2-voc/weights_random=0/yolov2-voc_best.weights',
         # 'custom_train/yolov2-voc/weights_random=1/yolov2-voc_best.weights',
         # 'custom_train/yolov2-voc/weights_with_pretrained/yolov2-voc_best.weights',
-        # 'custom_train/yolov3-custom-voc/weights/yolov3-custom-voc_best.weights',
+        'custom_train/yolov3-custom-voc/weights/yolov3-custom-voc_best.weights',
         # 'yolov4.weights',
         batch_size=1
     )
@@ -491,14 +491,14 @@ def make_pred_result_file_for_public_map_calculator():
 
 def show_result():
     network, class_names, class_colors = darknet.load_network(
-        'custom_train/yolov2-voc/yolov2-voc.cfg',
-        # 'custom_train/yolov3-custom-voc/yolov3-custom-voc.cfg',
-        'custom_train/yolov2-voc/voc.data',
-        # 'custom_train/yolov3-custom-voc/voc.data',
-        'custom_train/yolov2-voc/weights_random=0/yolov2-voc_best.weights',
+        # 'custom_train/yolov2-voc/yolov2-voc.cfg',
+        'custom_train/yolov3-custom-voc/yolov3-custom-voc.cfg',
+        # 'custom_train/yolov2-voc/voc.data',
+        'custom_train/yolov3-custom-voc/voc.data',
+        # 'custom_train/yolov2-voc/weights_random=0/yolov2-voc_best.weights',
         # 'custom_train/yolov2-voc/weights_random=1/yolov2-voc_best.weights',
         # 'custom_train/yolov2-voc/weights_with_pretrained/yolov2-voc_best.weights',
-        # 'custom_train/yolov3-custom-voc/weights/yolov3-custom-voc_best.weights',
+        'custom_train/yolov3-custom-voc/weights/yolov3-custom-voc_best.weights',
         batch_size=1
     )
 
@@ -518,7 +518,7 @@ def show_result():
             img_path, 
             network, 
             class_names,
-            thresh=0.25
+            thresh=0.005
         )
         
         img = cv2.imread(img_path)

@@ -69,3 +69,4 @@ vcpkg/
 *.mp4
 *.avi
 *.onnx
+custom_train/focus/
