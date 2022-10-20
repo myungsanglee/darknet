@@ -251,14 +251,14 @@ def decode_prediction_and_inference_speed_check(network, class_names, image, thr
     """
         Returns a list with highest confidence class and their bbox
     """
-    pnum = pointer(c_int(0))
     start = time.time()
+    pnum = pointer(c_int(0))
     predict_image(network, image)
     detections = get_network_boxes(network, image.w, image.h,
                                    thresh, hier_thresh, None, 0, pnum, 0)
     inference_fps = int(1/(time.time() - start))
     fps.append(inference_fps)
-    print(f'\rInference: {inference_fps} FPS', end='')
+    print(f'\rInference: {inference_fps:03d} FPS', end='')
     
     num = pnum[0]
     if nms:

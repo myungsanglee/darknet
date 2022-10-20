@@ -681,24 +681,49 @@ def check_inference_speed():
 
 def check_inference_speed_by_image():
     network, class_names, class_colors = darknet.load_network(
-        'custom_train/yolov3-tiny-3l-voc/yolov3-tiny-3l.cfg',
-        'custom_train/yolov3-tiny-3l-voc/voc.data',
-        'custom_train/yolov3-tiny-3l-voc/weights/yolov3-tiny-3l_best.weights',
+        # 'custom_train/yolov2-voc/yolov2-voc.cfg',
+        # 'custom_train/yolov2-voc/voc.data',
+        # 'custom_train/yolov2-voc/weights_random=0/yolov2-voc_best.weights',
+        
+        # 'custom_train/yolov3-custom-voc/yolov3-custom-voc.cfg',
+        # 'custom_train/yolov3-custom-voc/voc.data',
+        # 'custom_train/yolov3-custom-voc/weights/yolov3-custom-voc_best.weights',
+        
+        # 'custom_train/yolov3-tiny-3l-voc/yolov3-tiny-3l.cfg',
+        # 'custom_train/yolov3-tiny-3l-voc/voc.data',
+        # 'custom_train/yolov3-tiny-3l-voc/weights/yolov3-tiny-3l_best.weights',
+        
+        # 'custom_train/yolov4-tiny-3l-voc/yolov4-tiny-3l.cfg',
+        # 'custom_train/yolov4-tiny-3l-voc/voc.data',
+        # 'custom_train/yolov4-tiny-3l-voc/weights/yolov4-tiny-3l_best.weights',
+        
+        # 'custom_train/yolov4-tiny-3l-custom-01-voc/yolov4-tiny-3l-custom.cfg',
+        # 'custom_train/yolov4-tiny-3l-custom-01-voc/voc.data',
+        # 'custom_train/yolov4-tiny-3l-custom-01-voc/weights/yolov4-tiny-3l-custom_best.weights',
+        
+        # 'custom_train/yolov4-tiny-3l-custom-02-voc/yolov4-tiny-3l-custom.cfg',
+        # 'custom_train/yolov4-tiny-3l-custom-02-voc/voc.data',
+        # 'custom_train/yolov4-tiny-3l-custom-02-voc/weights/yolov4-tiny-3l-custom_best.weights',
+        
+        # 'custom_train/yolov4-tiny-3l-custom-03-voc/yolov4-tiny-3l-custom.cfg',
+        # 'custom_train/yolov4-tiny-3l-custom-03-voc/voc.data',
+        # 'custom_train/yolov4-tiny-3l-custom-03-voc/weights/yolov4-tiny-3l-custom_best.weights',
+        
+        # 'custom_train/yolov4-tiny-3l-custom-04-voc/yolov4-tiny-3l-custom.cfg',
+        # 'custom_train/yolov4-tiny-3l-custom-04-voc/voc.data',
+        # 'custom_train/yolov4-tiny-3l-custom-04-voc/weights/yolov4-tiny-3l-custom_best.weights',
+        
+        'custom_train/yolov4-tiny-3l-custom-05-voc/yolov4-tiny-3l-custom.cfg',
+        'custom_train/yolov4-tiny-3l-custom-05-voc/voc.data',
+        'custom_train/yolov4-tiny-3l-custom-05-voc/weights/yolov4-tiny-3l-custom_best.weights',
+        
         batch_size=1
     )
-
-    tmp_file_path = '/home/fssv2/myungsang/datasets/voc/yolo_format/tmp.txt'
-    with open(tmp_file_path, 'r') as f:
-        data_list = f.read().splitlines()
-    print(len(data_list))
     
-    color = (0, 255, 0)
     fps = []
-
-    for img_path in data_list:
-        ret, frame = cap.read()
-        if not ret:
-            break
+    frame = cv2.imread('data/dog.jpg')
+    
+    for idx in range(10005):
 
         detections = get_detection_for_inference_speed(
             frame,
@@ -707,39 +732,17 @@ def check_inference_speed_by_image():
             thresh=0.3, 
             fps=fps
         )
-        img = frame.copy()
-        img = cv2.resize(img, (416, 416))
         
-        for detection in detections:
-            class_name, confidence_score, box = detection
-            # class_idx = name_list.index(class_name)
-            cx = box[0]
-            cy = box[1]
-            w = box[2]
-            h = box[3]
-
-            xmin = int((cx - (w / 2)))
-            ymin = int((cy - (h / 2)))
-            xmax = int((cx + (w / 2)))
-            ymax = int((cy + (h / 2)))
-            
-            img = cv2.rectangle(img, (xmin, ymin), (xmax, ymax), color=color, thickness=2)
-
-        cv2.imshow('Image', img)
-        key = cv2.waitKey(1)
-        if key == 27:
-            break
-    
-    print(f'\navg-inference: {sum(fps)/len(fps)}')
-    
-    cv2.destroyAllWindows()
-    
+    print(f'\nAvg Inference: {int(sum(fps[5:])/len(fps[5:]))}')
 
 if __name__ == "__main__":
+    os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+    os.environ["CUDA_VISIBLE_DEVICES"]= '1'
+    
     # check_map_by_custom_map_calculator()
-    check_map_by_coco_map_calculator()
+    # check_map_by_coco_map_calculator()
     # make_pred_result_file_for_public_map_calculator()
     # show_result()
     # make_video()
     # check_inference_speed()
-    # check_inference_speed_by_image()
+    check_inference_speed_by_image()

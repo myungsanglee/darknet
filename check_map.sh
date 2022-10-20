@@ -2,9 +2,9 @@
 export CUDA_VISIBLE_DEVICES=1
 
 ./darknet detector map \
-custom_train/focus/221006_B_rev/front/yolov4-tiny-custom-v4_416/focus.data \
-custom_train/focus/221006_B_rev/front/yolov4-tiny-custom-v4_416/yolov4-tiny-custom-v4_416.cfg \
-custom_train/focus/221006_B_rev/front/yolov4-tiny-custom-v4_416/weights/yolov4-tiny-custom-v4_416_best.weights \
+custom_train/focus/221014_B_rev_3/front/yolov4-tiny-custom-v4_416/focus.data \
+custom_train/focus/221014_B_rev_3/front/yolov4-tiny-custom-v4_416/yolov4-tiny-custom-v4_416.cfg \
+custom_train/focus/221014_B_rev_3/front/yolov4-tiny-custom-v4_416/weights/yolov4-tiny-custom-v4_416_best.weights \
 -points 0
 
 #./darknet detector map \
