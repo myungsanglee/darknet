@@ -1,12 +1,12 @@
 #!/bin/bash
-export CUDA_VISIBLE_DEVICES=1
-
-#./darknet detector train \
-custom_train/yolov4-tiny-3l-custom-05-voc/voc.data \
-custom_train/yolov4-tiny-3l-custom-05-voc/yolov4-tiny-3l-custom.cfg \
--map
+export CUDA_VISIBLE_DEVICES=0
 
 ./darknet detector train \
+custom_train/yolov3-tiny-3l-custom-01-voc/voc.data \
+custom_train/yolov3-tiny-3l-custom-01-voc/yolov3-tiny-3l-custom.cfg \
+-map
+
+#./darknet detector train \
 custom_train/yolov4-tiny-custom-v5_coco-person_416/coco.data \
 custom_train/yolov4-tiny-custom-v5_coco-person_416/yolov4-tiny-custom-v5_coco-person_416.cfg \
 -map
