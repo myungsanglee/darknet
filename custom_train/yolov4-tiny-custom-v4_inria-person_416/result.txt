@@ -1,0 +1,2 @@
+INRIA Person test AP@0.5 (288 images) (conf > 0.005)
+%

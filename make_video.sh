@@ -1,5 +1,5 @@
 #!/bin/bash
-export CUDA_VISIBLE_DEVICES=1
+export CUDA_VISIBLE_DEVICES=0
 
 #./darknet detector demo \
 custom_train/yolov4-tiny-custom-v4_coco-person_224/coco.data \
@@ -11,12 +11,12 @@ video_test/raw_video/fssolution_moh_10.avi \
 -dont_show
 
 ./darknet detector demo \
-custom_train/focus/220812_B/front/yolov4-tiny-custom-v2_416/focus.data \
-custom_train/focus/220812_B/front/yolov4-tiny-custom-v2_416/yolov4-tiny-custom-v2_416.cfg \
-custom_train/focus/220812_B/front/yolov4-tiny-custom-v2_416/weights/yolov4-tiny-custom-v2_416_best.weights \
-video_test/raw_video/ottugi_fac_negative/ottugi_fac_04_clip_01.mp4 \
--out_filename video_test/result_video/ottugi_fac_04_clip_01.avi \
--thresh 0.3 \
+custom_train/focus/221102_D/front/yolov4-tiny-custom-v4_416/focus.data \
+custom_train/focus/221102_D/front/yolov4-tiny-custom-v4_416/yolov4-tiny-custom-v4_416.cfg \
+custom_train/focus/221102_D/front/yolov4-tiny-custom-v4_416/weights/yolov4-tiny-custom-v4_416_best.weights \
+video_test/raw_video/fssolution_moh_17.avi \
+-out_filename video_test/result_video/fssolution_moh_17.avi \
+-thresh 0.4 \
 -dont_show
 
 #./darknet detector demo \
