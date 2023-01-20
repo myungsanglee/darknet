@@ -1,14 +1,13 @@
 #!/bin/bash
-export CUDA_VISIBLE_DEVICES=0
-
-#./darknet detector map \
-custom_train/focus/221102_D/rear/yolov4-tiny-custom-v4_224/focus.data \
-custom_train/focus/221102_D/rear/yolov4-tiny-custom-v4_224/yolov4-tiny-custom-v4_224.cfg \
-custom_train/focus/221102_D/rear/yolov4-tiny-custom-v4_224/weights/yolov4-tiny-custom-v4_224_best.weights \
--thresh 0.25 \
--points 0
+export CUDA_VISIBLE_DEVICES=1
 
 ./darknet detector map \
+custom_train/focus/230102_E/front/version_01/focus.data \
+custom_train/focus/230102_E/front/version_01/yolov4-tiny-custom-v4_416.cfg \
+custom_train/focus/230102_E/front/version_01/weights/yolov4-tiny-custom-v4_416_best.weights \
+-points 0
+
+#./darknet detector map \
 custom_train/yolov4-tiny-custom-v4_inria-person_416/inria.data \
 custom_train/yolov4-tiny-custom-v4_inria-person_416/yolov4-tiny-custom-v4_inria-person_416.cfg \
 custom_train/yolov4-tiny-custom-v4_inria-person_416/weights/yolov4-tiny-custom-v4_inria-person_416_best.weights \

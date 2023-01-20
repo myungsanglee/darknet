@@ -11,11 +11,11 @@ video_test/raw_video/fssolution_moh_10.avi \
 -dont_show
 
 ./darknet detector demo \
-custom_train/focus/221102_D/front/yolov4-tiny-custom-v4_416/focus.data \
-custom_train/focus/221102_D/front/yolov4-tiny-custom-v4_416/yolov4-tiny-custom-v4_416.cfg \
-custom_train/focus/221102_D/front/yolov4-tiny-custom-v4_416/weights/yolov4-tiny-custom-v4_416_best.weights \
-video_test/raw_video/fssolution_moh_17.avi \
--out_filename video_test/result_video/fssolution_moh_17.avi \
+custom_train/focus/230102_E/front/version_09/focus.data \
+custom_train/focus/230102_E/front/version_09/yolov4-tiny-custom-v4_416.cfg \
+custom_train/focus/230102_E/front/version_09/weights/yolov4-tiny-custom-v4_416_best.weights \
+video_test/raw_video/23.01.13_ottugi_test_video.avi \
+-out_filename video_test/result_video/230102_E/version_09/23.01.13_ottugi_test_video.avi \
 -thresh 0.4 \
 -dont_show
 

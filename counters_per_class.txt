@@ -1,1 +1,1 @@
-counters_per_class = 1240
+counters_per_class = 23183

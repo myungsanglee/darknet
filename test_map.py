@@ -21,7 +21,7 @@ import albumentations
 import albumentations.pytorch
 
 sys.path.append('/home/fssv2/myungsang/my_projects/PyTorch-Object-Detection')
-from dataset.detection.yolov2_utils import mean_average_precision
+from utils.yolo_utils import mean_average_precision, metrics_per_class
 
 def parser():
     parser = argparse.ArgumentParser(description="YOLO Object Detection")
@@ -413,9 +413,57 @@ def check_map_by_custom_map_calculator():
         # 'custom_train/focus/221024_C/front/yolov3-tiny-custom-v1_416/focus.data',
         # 'custom_train/focus/221024_C/front/yolov3-tiny-custom-v1_416/weights/yolov3-tiny-custom-v1_416_best.weights',
         
-        'custom_train/focus/221102_D/front/yolov4-tiny-custom-v4_416/yolov4-tiny-custom-v4_416.cfg',
-        'custom_train/focus/221102_D/front/yolov4-tiny-custom-v4_416/focus.data',
-        'custom_train/focus/221102_D/front/yolov4-tiny-custom-v4_416/weights/yolov4-tiny-custom-v4_416_best.weights',
+        # 'custom_train/focus/221102_D/front/yolov4-tiny-custom-v4_416/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/221102_D/front/yolov4-tiny-custom-v4_416/focus.data',
+        # 'custom_train/focus/221102_D/front/yolov4-tiny-custom-v4_416/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        # 'custom_train/focus/230102_E/front/version_01/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_01/focus.data',
+        # 'custom_train/focus/230102_E/front/version_01/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        # 'custom_train/focus/230102_E/front/version_02/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_02/focus.data',
+        # 'custom_train/focus/230102_E/front/version_02/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        # 'custom_train/focus/230102_E/front/version_03/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_03/focus.data',
+        # 'custom_train/focus/230102_E/front/version_03/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        # 'custom_train/focus/230102_E/front/version_04/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_04/focus.data',
+        # 'custom_train/focus/230102_E/front/version_04/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        # 'custom_train/focus/230102_E/front/version_05/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_05/focus.data',
+        # 'custom_train/focus/230102_E/front/version_05/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        # 'custom_train/focus/230102_E/front/version_06/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_06/focus.data',
+        # 'custom_train/focus/230102_E/front/version_06/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        'custom_train/focus/230102_E/front/version_07/yolov4-tiny-custom-v4_416.cfg',
+        'custom_train/focus/230102_E/front/version_07/focus.data',
+        'custom_train/focus/230102_E/front/version_07/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        # 'custom_train/focus/230102_E/front/version_08/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_08/focus.data',
+        # 'custom_train/focus/230102_E/front/version_08/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        # 'custom_train/focus/230102_E/front/version_09/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_09/focus.data',
+        # 'custom_train/focus/230102_E/front/version_09/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        # 'custom_train/focus/230102_E/front/version_10/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_10/focus.data',
+        # 'custom_train/focus/230102_E/front/version_10/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        # 'custom_train/focus/230102_E/front/version_11/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_11/focus.data',
+        # 'custom_train/focus/230102_E/front/version_11/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        # 'custom_train/focus/230102_E/front/version_12/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_12/focus.data',
+        # 'custom_train/focus/230102_E/front/version_12/weights/yolov4-tiny-custom-v4_416_best.weights',
         
         batch_size=1
     )
@@ -429,7 +477,13 @@ def check_map_by_custom_map_calculator():
     # val_txt_path = '/home/fssv2/myungsang/datasets/coco_2017/person/val.txt'
     # val_txt_path = '/home/fssv2/myungsang/datasets/focus/220812_B/front/val.txt'
     # val_txt_path = '/home/fssv2/myungsang/datasets/focus/221024_C/front/val.txt'
-    val_txt_path = '/home/fssv2/myungsang/datasets/focus/221102_D/front/val.txt'
+    # val_txt_path = '/home/fssv2/myungsang/datasets/focus/221102_D/front/val.txt'
+    # val_txt_path = '/home/fssv2/myungsang/datasets/focus/230102_E/front/val_v1.txt'
+    # val_txt_path = '/home/fssv2/myungsang/datasets/focus/230102_E/front/val_v2.txt'
+    val_txt_path = '/home/fssv2/myungsang/datasets/focus/230102_E/front/test_v2.txt'
+    # val_txt_path = '/home/fssv2/myungsang/datasets/focus/230102_E/front_crop/version11/crop_val_v1.txt'
+    # val_txt_path = '/home/fssv2/myungsang/datasets/focus/230102_E/front_crop/version11/crop_val_v2.txt'
+    # val_txt_path = '/home/fssv2/myungsang/datasets/focus/230102_E/front_crop/version11/crop_test_v2.txt'
     with open(val_txt_path, 'r') as f:
         img_list = f.read().splitlines()
 
@@ -468,8 +522,19 @@ def check_map_by_custom_map_calculator():
 
         img_idx += 1
     
-    map = mean_average_precision(all_true_boxes_variable, all_pred_boxes_variable, len(class_names))
-    print(f'mAP: {map}')
+    # map = mean_average_precision(all_true_boxes_variable, all_pred_boxes_variable, len(class_names))
+    # print(f'mAP: {map*100:.2f}%')
+    
+    metrics = metrics_per_class(all_true_boxes_variable, all_pred_boxes_variable, len(class_names))
+    
+    for idx, (ap, tp, fp, fn) in enumerate(metrics):
+        precision = tp / (tp + fp)
+        recall = tp / (tp + fn)
+        f1_score = 2 * (precision * recall) / (precision + recall)
+        print(f'Name: {class_names[idx]}, AP: {ap*100:.2f}%, Precision: {precision*100:.2f}%, Recall: {recall*100:.2f}%, F1 Score: {f1_score*100:.2f}%')
+    
+    map = metrics[:, 0].mean()
+    print(f'mAP: {map*100:.2f}%')
 
 
 def check_map_by_coco_map_calculator():
@@ -711,9 +776,9 @@ def show_result():
         # 'custom_train/focus/221024_C/front/yolov4-tiny-custom-v2_416/focus.data',
         # 'custom_train/focus/221024_C/front/yolov4-tiny-custom-v2_416/weights/yolov4-tiny-custom-v2_416_best.weights',
         
-        'custom_train/focus/221024_C/front/yolov4-tiny-custom-v4_416/yolov4-tiny-custom-v4_416.cfg',
-        'custom_train/focus/221024_C/front/yolov4-tiny-custom-v4_416/focus.data',
-        'custom_train/focus/221024_C/front/yolov4-tiny-custom-v4_416/weights/yolov4-tiny-custom-v4_416_best.weights',
+        # 'custom_train/focus/221024_C/front/yolov4-tiny-custom-v4_416/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/221024_C/front/yolov4-tiny-custom-v4_416/focus.data',
+        # 'custom_train/focus/221024_C/front/yolov4-tiny-custom-v4_416/weights/yolov4-tiny-custom-v4_416_best.weights',
         
         # 'custom_train/focus/221024_C/front/yolov4-tiny-custom-v5_416/yolov4-tiny-custom-v5_416.cfg',
         # 'custom_train/focus/221024_C/front/yolov4-tiny-custom-v5_416/focus.data',
@@ -727,6 +792,30 @@ def show_result():
         # 'custom_train/focus/221102_D/front/yolov4-tiny-custom-v4_416/focus.data',
         # 'custom_train/focus/221102_D/front/yolov4-tiny-custom-v4_416/weights/yolov4-tiny-custom-v4_416_best.weights',
         
+        # 'custom_train/focus/230102_E/front/version_01/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_01/focus.data',
+        # 'custom_train/focus/230102_E/front/version_01/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        # 'custom_train/focus/230102_E/front/version_02/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_02/focus.data',
+        # 'custom_train/focus/230102_E/front/version_02/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        # 'custom_train/focus/230102_E/front/version_03/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_03/focus.data',
+        # 'custom_train/focus/230102_E/front/version_03/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        # 'custom_train/focus/230102_E/front/version_04/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_04/focus.data',
+        # 'custom_train/focus/230102_E/front/version_04/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        # 'custom_train/focus/230102_E/front/version_05/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_05/focus.data',
+        # 'custom_train/focus/230102_E/front/version_05/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        'custom_train/focus/230102_E/front/version_06/yolov4-tiny-custom-v4_416.cfg',
+        'custom_train/focus/230102_E/front/version_06/focus.data',
+        'custom_train/focus/230102_E/front/version_06/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
         batch_size=1
     )
 
@@ -735,7 +824,8 @@ def show_result():
     # val_txt_path = '/home/fssv2/myungsang/datasets/focus/220812_B/front/val.txt'
     # val_txt_path = '/home/fssv2/myungsang/datasets/focus/221024_C/front/val.txt'
     # val_txt_path = '/home/fssv2/myungsang/datasets/focus/221102_D/front/val.txt'
-    val_txt_path = '/home/fssv2/myungsang/datasets/focus/test_images/wheel.txt'
+    # val_txt_path = '/home/fssv2/myungsang/datasets/focus/test_images/wheel.txt'
+    val_txt_path = '/home/fssv2/myungsang/datasets/focus/230102_E/front/test_v2.txt'
     with open(val_txt_path, 'r') as f:
         img_list = f.read().splitlines()
         
@@ -980,10 +1070,10 @@ if __name__ == "__main__":
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"]= '0'
     
-    # check_map_by_custom_map_calculator()
+    check_map_by_custom_map_calculator()
     # check_map_by_coco_map_calculator()
     # make_pred_result_file_for_public_map_calculator()
-    show_result()
+    # show_result()
     # make_video()
     # check_inference_speed()
     # check_inference_speed_by_image()

@@ -13,7 +13,7 @@ custom_train/yolov4-tiny-custom-v4_inria-person_416/yolov4-tiny-custom-v4_coco-p
 -map
 
 ./darknet detector train \
-custom_train/focus/221102_D/front/yolov4-tiny-custom-v4_416/focus.data \
-custom_train/focus/221102_D/front/yolov4-tiny-custom-v4_416/yolov4-tiny-custom-v4_416.cfg \
-custom_train/focus/221102_D/front/yolov4-tiny-custom-v4_416/yolov4-tiny-custom-v4_coco-person_416.conv.27 \
+custom_train/focus/230102_E/front/version_12/focus.data \
+custom_train/focus/230102_E/front/version_12/yolov4-tiny-custom-v4_416.cfg \
+custom_train/focus/230102_E/front/version_12/yolov4-tiny-custom-v4_coco-person_416.conv.27 \
 -map
