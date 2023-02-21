@@ -15,6 +15,7 @@ import darknet
 import json
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
+from PIL import ImageFont, ImageDraw, Image
 
 import torch
 import albumentations
@@ -205,6 +206,28 @@ def batch_detection_example():
 
 
 def get_detection(image_path, network, class_names, thresh):
+    # Darknet doesn't accept numpy images.
+    # Create one with image we reuse for each detect
+    width = darknet.network_width(network)
+    height = darknet.network_height(network)
+    darknet_image = darknet.make_image(width, height, 3)
+
+    image = cv2.imread(image_path)
+    if image is None:
+        print(f'Can not read this file: \n{image_path}')
+        return []
+    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    image_resized = cv2.resize(image_rgb, (width, height),
+                               interpolation=cv2.INTER_LINEAR)
+
+    darknet.copy_image_from_bytes(darknet_image, image_resized.tobytes())
+    # detections = darknet.detect_image(network, class_names, darknet_image, thresh=thresh)
+    detections = darknet.decode_prediction(network, class_names, darknet_image, thresh=thresh)
+    darknet.free_image(darknet_image)
+    return detections
+
+
+def get_detection_for_lpr(image_path, network, class_names, thresh):
     # Darknet doesn't accept numpy images.
     # Create one with image we reuse for each detect
     width = darknet.network_width(network)
@@ -441,9 +464,9 @@ def check_map_by_custom_map_calculator():
         # 'custom_train/focus/230102_E/front/version_06/focus.data',
         # 'custom_train/focus/230102_E/front/version_06/weights/yolov4-tiny-custom-v4_416_best.weights',
         
-        'custom_train/focus/230102_E/front/version_07/yolov4-tiny-custom-v4_416.cfg',
-        'custom_train/focus/230102_E/front/version_07/focus.data',
-        'custom_train/focus/230102_E/front/version_07/weights/yolov4-tiny-custom-v4_416_best.weights',
+        # 'custom_train/focus/230102_E/front/version_07/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_07/focus.data',
+        # 'custom_train/focus/230102_E/front/version_07/weights/yolov4-tiny-custom-v4_416_best.weights',
         
         # 'custom_train/focus/230102_E/front/version_08/yolov4-tiny-custom-v4_416.cfg',
         # 'custom_train/focus/230102_E/front/version_08/focus.data',
@@ -465,6 +488,26 @@ def check_map_by_custom_map_calculator():
         # 'custom_train/focus/230102_E/front/version_12/focus.data',
         # 'custom_train/focus/230102_E/front/version_12/weights/yolov4-tiny-custom-v4_416_best.weights',
         
+        # 'custom_train/focus/230102_E/front/version_07_1/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_07_1/focus.data',
+        # 'custom_train/focus/230102_E/front/version_07_1/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        #######################################################################################################
+        # LPR
+        #######################################################################################################
+        
+        # 'custom_train/yolov4-tiny-3l-custom-04-lpr/yolov4-tiny-3l-custom.cfg',
+        # 'custom_train/yolov4-tiny-3l-custom-04-lpr/lpr.data',
+        # 'custom_train/yolov4-tiny-3l-custom-04-lpr/weights/yolov4-tiny-3l-custom_best.weights',
+        
+        #######################################################################################################
+        # Crowded People
+        #######################################################################################################
+        
+        'custom_train/focus/crowded_people/416/yolov4-tiny-custom-v4_416.cfg',
+        'custom_train/focus/crowded_people/416/focus.data',
+        'custom_train/focus/crowded_people/416/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
         batch_size=1
     )
 
@@ -480,10 +523,13 @@ def check_map_by_custom_map_calculator():
     # val_txt_path = '/home/fssv2/myungsang/datasets/focus/221102_D/front/val.txt'
     # val_txt_path = '/home/fssv2/myungsang/datasets/focus/230102_E/front/val_v1.txt'
     # val_txt_path = '/home/fssv2/myungsang/datasets/focus/230102_E/front/val_v2.txt'
-    val_txt_path = '/home/fssv2/myungsang/datasets/focus/230102_E/front/test_v2.txt'
+    # val_txt_path = '/home/fssv2/myungsang/datasets/focus/230102_E/front/test_v2.txt'
     # val_txt_path = '/home/fssv2/myungsang/datasets/focus/230102_E/front_crop/version11/crop_val_v1.txt'
     # val_txt_path = '/home/fssv2/myungsang/datasets/focus/230102_E/front_crop/version11/crop_val_v2.txt'
     # val_txt_path = '/home/fssv2/myungsang/datasets/focus/230102_E/front_crop/version11/crop_test_v2.txt'
+    # val_txt_path = '/home/fssv2/myungsang/datasets/lpr/val.txt'
+    val_txt_path = '/home/fssv2/fssv2_dataset/Crowd/1. VSCrowd/VSCrowd_Aug2/val.txt'
+    
     with open(val_txt_path, 'r') as f:
         img_list = f.read().splitlines()
 
@@ -539,31 +585,14 @@ def check_map_by_custom_map_calculator():
 
 def check_map_by_coco_map_calculator():
     network, class_names, class_colors = darknet.load_network(
-        # 'custom_train/yolov2-voc/yolov2-voc.cfg',
         'custom_train/yolov3-custom-voc/yolov3-custom-voc.cfg',
-        # 'cfg/yolov4.cfg',
-        # 'custom_train/yolov2-voc/voc.data',
         'custom_train/yolov3-custom-voc/voc.data',
-        # 'custom_train/yolov3-tiny-3l-custom-coco/coco.data',
-        # 'custom_train/yolov2-voc/weights_random=0/yolov2-voc_best.weights',
-        # 'custom_train/yolov2-voc/weights_random=1/yolov2-voc_best.weights',
-        # 'custom_train/yolov2-voc/weights_with_pretrained/yolov2-voc_best.weights',
         'custom_train/yolov3-custom-voc/weights/yolov3-custom-voc_best.weights',
-        # 'yolov4.weights',
+        
         batch_size=1
     )
 
-    # # names_txt_path = '/home/fssv2/myungsang/datasets/voc/yolo_format/voc.names'
-    # names_txt_path = '/home/fssv2/myungsang/darknet/custom_train/yolov3-tiny-3l-custom-coco/coco.names'
-    # with open(names_txt_path, 'r') as f:
-    #     name_list = f.read().splitlines()
-
-    # names_txt_path = '/home/fssv2/myungsang/datasets/coco_2017/coco.names'
-    # with open(names_txt_path, 'r') as f:
-    #     org_name_list = f.read().splitlines()
-
     json_path = '/home/fssv2/myungsang/datasets/voc/coco_format/val.json'
-    # json_path = '/home/fssv2/myungsang/datasets/coco_2017/annotations/instances_val2017.json'
     coco = COCO(json_path)
 
     imgs = coco.loadImgs(coco.getImgIds())
@@ -575,9 +604,8 @@ def check_map_by_coco_map_calculator():
     results = []
     results_json_path = os.path.join(os.getcwd(), 'results.json')
 
-    for (img_id, img_name, width, height) in tqdm(imgs_info):
-        img_path = os.path.join('/home/fssv2/myungsang/datasets/voc/yolo_format/val', img_name)
-        # img_path = os.path.join('/home/fssv2/myungsang/datasets/coco_2017/val2017', img_name)
+    for (img_id, file_name, img_width, img_height) in tqdm(imgs_info):
+        img_path = os.path.join('/home/fssv2/myungsang/datasets/voc', file_name)
 
         detections = get_detection(
             img_path, 
@@ -588,10 +616,10 @@ def check_map_by_coco_map_calculator():
 
         for detection in detections:
             class_name, confidence, box = detection
-            cx = box[0] * (width / darknet.network_width(network))
-            cy = box[1] * (height / darknet.network_height(network))
-            w = box[2] * (width / darknet.network_width(network))
-            h = box[3] * (height / darknet.network_height(network))
+            cx = box[0] * (img_width / darknet.network_width(network))
+            cy = box[1] * (img_height / darknet.network_height(network))
+            w = box[2] * (img_width / darknet.network_width(network))
+            h = box[3] * (img_height / darknet.network_height(network))
 
             xmin = int(round((cx - (w / 2))))
             ymin = int(round((cy - (h / 2))))
@@ -605,8 +633,6 @@ def check_map_by_coco_map_calculator():
                 "score": float(confidence)
             })
     
-    # print(f'detection count: {len(results)}')
-    
     with open(results_json_path, "w") as f:
         json.dump(results, f, indent=4)
     
@@ -615,6 +641,7 @@ def check_map_by_coco_map_calculator():
 
     # load detection JSON file from the disk
     cocovalPrediction = coco.loadRes(results_json_path)
+    
     # initialize the COCOeval object by passing the coco object with
     # ground truth annotations, coco object with detection results
     cocoEval = COCOeval(coco, cocovalPrediction, "bbox")
@@ -626,6 +653,98 @@ def check_map_by_coco_map_calculator():
     cocoEval.evaluate()
     cocoEval.accumulate()
     cocoEval.summarize()
+
+
+def check_map_by_torchmetrics_map_calculator():
+    network, class_names, class_colors = darknet.load_network(
+        'custom_train/yolov3-custom-voc/yolov3-custom-voc.cfg',
+        'custom_train/yolov3-custom-voc/voc.data',
+        'custom_train/yolov3-custom-voc/weights/yolov3-custom-voc_best.weights',
+        
+        batch_size=1
+    )
+
+    json_path = '/home/fssv2/myungsang/datasets/voc/coco_format/val.json'
+    coco = COCO(json_path)
+
+    imgs = coco.loadImgs(coco.getImgIds())
+    cats = coco.loadCats(coco.getCatIds())
+    cats_dict = dict([[cat['name'], cat['id']] for cat in cats])
+
+    imgs_info = [[img['id'], img['file_name'], img['width'], img['height']] for img in imgs]
+    
+    from torchmetrics.detection.mean_ap import MeanAveragePrecision
+    metric = MeanAveragePrecision(box_format='xywh')
+    
+    for (img_id, file_name, img_width, img_height) in tqdm(imgs_info):
+        preds_boxes = []
+        preds_scores = []
+        preds_labels = []
+        
+        target_boxes = []
+        target_labels = []
+        
+        # update target
+        annids = coco.getAnnIds(imgIds=img_id)
+        anns = coco.loadAnns(annids)
+        for ann in anns:
+            bbox = ann['bbox']
+            category_id = ann['category_id']
+            
+            xmin = bbox[0]
+            ymin = bbox[1]
+            w = bbox[2]
+            h = bbox[3]
+            
+            target_boxes.append([xmin, ymin, w, h])
+            target_labels.append(category_id - 1)
+        
+        # update preds
+        img_path = os.path.join('/home/fssv2/myungsang/datasets/voc', file_name)
+        detections = get_detection(
+            img_path, 
+            network, 
+            class_names,
+            thresh=0.25
+        )
+
+        for detection in detections:
+            class_name, confidence, box = detection
+            class_idx = class_names.index(class_name)
+            cx = box[0] * (img_width / darknet.network_width(network))
+            cy = box[1] * (img_height / darknet.network_height(network))
+            w = box[2] * (img_width / darknet.network_width(network))
+            h = box[3] * (img_height / darknet.network_height(network))
+
+            xmin = int(round((cx - (w / 2))))
+            ymin = int(round((cy - (h / 2))))
+            w = int(round(w))
+            h = int(round(h))
+            
+            preds_boxes.append([xmin, ymin, w, h])
+            preds_scores.append(float(confidence))
+            preds_labels.append(class_idx)
+            
+        # update metric
+        preds = [
+            dict(
+                boxes=torch.tensor(preds_boxes) if preds_boxes else torch.zeros((0, 4)),
+                scores=torch.tensor(preds_scores),
+                labels=torch.tensor(preds_labels)
+            )
+        ]
+        
+        target = [
+            dict(
+                boxes=torch.tensor(target_boxes) if target_boxes else torch.zeros((0, 4)),
+                labels=torch.tensor(target_labels)
+            )
+        ]
+        
+        metric.update(preds, target)
+
+    result = metric.compute()
+    print(result)
     
 
 def make_pred_result_file_for_public_map_calculator():
@@ -812,9 +931,17 @@ def show_result():
         # 'custom_train/focus/230102_E/front/version_05/focus.data',
         # 'custom_train/focus/230102_E/front/version_05/weights/yolov4-tiny-custom-v4_416_best.weights',
         
-        'custom_train/focus/230102_E/front/version_06/yolov4-tiny-custom-v4_416.cfg',
-        'custom_train/focus/230102_E/front/version_06/focus.data',
-        'custom_train/focus/230102_E/front/version_06/weights/yolov4-tiny-custom-v4_416_best.weights',
+        # 'custom_train/focus/230102_E/front/version_06/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_06/focus.data',
+        # 'custom_train/focus/230102_E/front/version_06/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        'custom_train/focus/230102_E/front/version_07/yolov4-tiny-custom-v4_416.cfg',
+        'custom_train/focus/230102_E/front/version_07/focus.data',
+        'custom_train/focus/230102_E/front/version_07/weights/yolov4-tiny-custom-v4_416_best.weights',
+        
+        # 'custom_train/focus/230102_E/front/version_12/yolov4-tiny-custom-v4_416.cfg',
+        # 'custom_train/focus/230102_E/front/version_12/focus.data',
+        # 'custom_train/focus/230102_E/front/version_12/weights/yolov4-tiny-custom-v4_416_best.weights',
         
         batch_size=1
     )
@@ -826,11 +953,18 @@ def show_result():
     # val_txt_path = '/home/fssv2/myungsang/datasets/focus/221102_D/front/val.txt'
     # val_txt_path = '/home/fssv2/myungsang/datasets/focus/test_images/wheel.txt'
     val_txt_path = '/home/fssv2/myungsang/datasets/focus/230102_E/front/test_v2.txt'
+    # val_txt_path = '/home/fssv2/myungsang/datasets/focus/230102_E/front_crop/version11/crop_test_v2.txt'
     with open(val_txt_path, 'r') as f:
         img_list = f.read().splitlines()
         
     tmp_num = 0
     color = (0, 255, 0)
+    
+    width = darknet.network_width(network)
+    height = darknet.network_height(network)
+    
+    cv2.namedWindow('Image', cv2.WINDOW_NORMAL)
+    cv2.resizeWindow('Image', 1080, 720)
 
     for img_path in tqdm(img_list[:]):
         detections = get_detection(
@@ -842,7 +976,83 @@ def show_result():
         
         img = cv2.imread(img_path)
         img_h, img_w, _ = img.shape
-        img = cv2.resize(img, (416, 416))
+        img = cv2.resize(img, (width, height))
+
+        for detection in detections:
+            class_name, confidence_score, box = detection
+            class_idx = class_names.index(class_name)
+            cx = box[0]
+            cy = box[1]
+            w = box[2]
+            h = box[3]
+
+            xmin = int((cx - (w / 2)))
+            ymin = int((cy - (h / 2)))
+            xmax = int((cx + (w / 2)))
+            ymax = int((cy + (h / 2)))
+            
+            img = cv2.rectangle(img, (xmin, ymin), (xmax, ymax), color=color, thickness=1)
+            img = cv2.putText(img, "{:s}, {:.2f}".format(class_name, confidence_score), (xmin, ymin + 20),
+                            fontFace=cv2.FONT_HERSHEY_PLAIN,
+                            fontScale=1,
+                            color=color)
+            
+        img = cv2.resize(img, (img_w, img_h))
+
+        cv2.imshow('Image', img)
+        key = cv2.waitKey(0)
+        if key == 27:
+            break
+        elif key == ord('c'):
+            tmp_num += 1
+            img_path = f'captured_images/image_{tmp_num:05d}.jpg'
+            cv2.imwrite(img_path, img)
+            
+    cv2.destroyAllWindows()
+
+
+def save_result():
+    network, class_names, class_colors = darknet.load_network(
+
+        'custom_train/focus/crowded_people/416/yolov4-tiny-custom-v4_416.cfg',
+        'custom_train/focus/crowded_people/416/focus.data',
+        'custom_train/focus/crowded_people/416/weights/yolov4-tiny-custom-v4_416_last.weights',
+        
+        batch_size=1
+    )
+
+    # val_txt_path = '/home/fssv2/fssv2_dataset/Crowd/3. FDST/test.txt'
+    # val_txt_path = '/home/fssv2/fssv2_dataset/Crowd/x. Mail_dot/mall_dataset/frames.txt'
+    val_txt_path = '/home/fssv2/fssv2_dataset/Crowd/2. jhu_crowd_v2.0/test.txt'
+    with open(val_txt_path, 'r') as f:
+        img_list = f.read().splitlines()
+    
+    # out_dir = '/home/fssv2/fssv2_dataset/Crowd/3. FDST/test_data_inference_results'
+    # out_dir = '/home/fssv2/fssv2_dataset/Crowd/x. Mail_dot/mall_dataset/inference_results'
+    out_dir = '/home/fssv2/fssv2_dataset/Crowd/2. jhu_crowd_v2.0/test_inference_results'
+    
+    tmp_num = 0
+    color = (0, 255, 0)
+    
+    width = darknet.network_width(network)
+    height = darknet.network_height(network)
+    
+    # cv2.namedWindow('Image', cv2.WINDOW_NORMAL)
+    # cv2.resizeWindow('Image', 1080, 720)
+
+    for img_path in tqdm(img_list[:]):
+        detections = get_detection(
+            img_path, 
+            network, 
+            class_names,
+            thresh=0.4
+        )
+        
+        img = cv2.imread(img_path)
+        if img is None:
+            continue
+        img_h, img_w, _ = img.shape
+        img = cv2.resize(img, (width, height))
 
         for detection in detections:
             class_name, confidence_score, box = detection
@@ -862,21 +1072,26 @@ def show_result():
             #                 fontFace=cv2.FONT_HERSHEY_PLAIN,
             #                 fontScale=1,
             #                 color=color)
-
-        img = cv2.resize(img, (img_w, img_h))
-
-        cv2.imshow('Image', img)
-        key = cv2.waitKey(0)
-        if key == 27:
-            break
-        elif key == ord('c'):
-            tmp_num += 1
-            img_path = f'captured_images/image_{tmp_num:05d}.jpg'
-            cv2.imwrite(img_path, img)
             
-    
-    cv2.destroyAllWindows()
+        img = cv2.resize(img, (img_w, img_h))
+        
+        # new_out_dir = os.path.join(out_dir, img_path.split(os.sep)[-2])
+        # if not os.path.isdir(new_out_dir):
+        #     os.makedirs(new_out_dir, exist_ok=True)
+        new_img_path = os.path.join(out_dir, os.path.basename(img_path))
+        cv2.imwrite(new_img_path, img)
 
+    #     cv2.imshow('Image', img)
+    #     key = cv2.waitKey(0)
+    #     if key == 27:
+    #         break
+    #     elif key == ord('c'):
+    #         tmp_num += 1
+    #         img_path = f'captured_images/image_{tmp_num:05d}.jpg'
+    #         cv2.imwrite(img_path, img)
+            
+    # cv2.destroyAllWindows()
+    
 
 def make_video():
     network, class_names, class_colors = darknet.load_network(
@@ -1066,14 +1281,230 @@ def check_inference_speed_by_image():
         
     print(f'\nAvg Inference: {int(sum(fps[5:])/len(fps[5:]))}')
 
+
+def show_lpr_result_by_full_img():
+    network, class_names, class_colors = darknet.load_network(
+        #######################################################################################################
+        # LPR
+        #######################################################################################################
+        
+        'custom_train/yolov4-tiny-3l-custom-04-lpr/yolov4-tiny-3l-custom.cfg',
+        'custom_train/yolov4-tiny-3l-custom-04-lpr/lpr.data',
+        'custom_train/yolov4-tiny-3l-custom-04-lpr/weights/yolov4-tiny-3l-custom_best.weights',
+        
+        batch_size=1
+    )
+
+    val_txt_path = '/home/fssv2/myungsang/datasets/lpr/test.txt'
+    with open(val_txt_path, 'r') as f:
+        img_list = f.read().splitlines()
+        
+    tmp_num = 0
+    color = (0, 255, 0)
+    
+    width = darknet.network_width(network)
+    height = darknet.network_height(network)
+    
+    font = ImageFont.truetype('malgun.ttf', 30)
+    with open('/home/fssv2/myungsang/datasets/lpr/lpr_kr.names') as f:
+        name_list = f.read().splitlines()
+
+    # cv2.namedWindow('Image', cv2.WINDOW_NORMAL)
+    # cv2.resizeWindow('Image', 1080, 720)
+
+    for img_path in tqdm(img_list[:]):
+        txt_path = img_path.rsplit('.', 1)[0] + '.txt'
+        with open(txt_path, 'r') as f:
+            labels = f.read().splitlines()
+        labels = [[float(y) for y in x.split(' ')[1:]] for x in labels if x.split(' ')[0] == '8']
+        
+        cv_img = cv2.imread(img_path)
+        img_h, img_w, _ = cv_img.shape
+        
+        img = Image.fromarray(cv_img)
+        draw = ImageDraw.Draw(img)
+        
+        for label in labels:
+            cx = label[0] * img_w
+            cy = label[1] * img_h
+            w = label[2] * img_w
+            h = label[3] * img_h
+            
+            xmin = int(cx - (w / 2))
+            ymin = int(cy - (h / 2))
+            xmax = int(cx + (w / 2))
+            ymax = int(cy + (h / 2))
+        
+            crop_img = cv_img[ymin:ymax, xmin:xmax].copy()
+            
+            detections = get_detection_for_video(
+                crop_img, 
+                network, 
+                class_names,
+                thresh=0.4
+            )
+            # [cls_idx, confidence, cx, cy, w, h]
+            detections = np.array([[class_names.index(x[0]), x[1], x[2][0], x[2][1], x[2][2], x[2][3]] for x in detections])
+            
+            plate_num, detections = get_plate_number(detections, height, name_list)
+            
+            draw.rectangle((xmin, ymin, xmax, ymax), outline=color, width=1)
+            
+            txt_w, txt_h = draw.textsize(plate_num, font=font)
+            draw.text(((xmin, max(ymin - txt_h, 0))), f'{plate_num}', font=font, fill=color)
+            
+            # draw plate number
+            for detection in detections:
+                _, _, cx, cy, w, h = detection
+                
+                pxmin = xmin + int((cx - (w / 2)) * (xmax - xmin) / width)
+                pxmax = xmin + int((cx + (w / 2)) * (xmax - xmin) / width)
+                pymin = ymin + int((cy - (h / 2)) * (ymax - ymin) / height)
+                pymax = ymin + int((cy + (h / 2)) * (ymax - ymin) / height)
+                
+                draw.rectangle((pxmin, pymin, pxmax, pymax), outline=color, width=1)
+                
+        
+        img = np.array(img)
+        
+        # # Save Image
+        # new_dir = os.path.join('/home/fssv2/myungsang/datasets/lpr/darknet_test', img_path.split(os.sep)[-2])
+        # if not os.path.isdir(new_dir):
+        #     os.makedirs(new_dir, exist_ok=True)
+        # new_path = os.path.join(new_dir, os.path.basename(img_path))
+        # cv2.imwrite(new_path, img)
+
+        cv2.imshow('Image', img)
+        key = cv2.waitKey(0)
+        if key == 27:
+            break
+        elif key == ord('c'):
+            tmp_num += 1
+            img_path = f'captured_images/image_{tmp_num:05d}.jpg'
+            cv2.imwrite(img_path, img)
+            
+    cv2.destroyAllWindows()
+
+
+def show_lpr_result():
+    network, class_names, class_colors = darknet.load_network(
+        #######################################################################################################
+        # LPR
+        #######################################################################################################
+        
+        'custom_train/yolov4-tiny-3l-custom-04-lpr/yolov4-tiny-3l-custom.cfg',
+        'custom_train/yolov4-tiny-3l-custom-04-lpr/lpr.data',
+        'custom_train/yolov4-tiny-3l-custom-04-lpr/weights/yolov4-tiny-3l-custom_best.weights',
+        
+        batch_size=1
+    )
+
+    val_txt_path = '/home/fssv2/myungsang/datasets/lpr/val.txt'
+    with open(val_txt_path, 'r') as f:
+        img_list = f.read().splitlines()
+        
+    tmp_num = 0
+    color = (0, 255, 0)
+    
+    width = darknet.network_width(network)
+    height = darknet.network_height(network)
+    
+    font = ImageFont.truetype('malgun.ttf', 20)
+    with open('/home/fssv2/myungsang/datasets/lpr/lpr_kr.names') as f:
+        name_list = f.read().splitlines()
+
+    for img_path in tqdm(img_list[:]):
+        img = cv2.imread(img_path)
+        img_h, img_w, _ = img.shape
+        img = cv2.resize(img, (width, height))
+        
+        detections = get_detection_for_video(
+            img, 
+            network, 
+            class_names,
+            thresh=0.4
+        )
+        
+        # [cls_idx, confidence, cx, cy, w, h]
+        detections = np.array([[class_names.index(x[0]), x[1], x[2][0], x[2][1], x[2][2], x[2][3]] for x in detections])
+        
+        plate_num, detections = get_plate_number(detections, height, name_list)
+        print(plate_num)
+        
+        img = Image.fromarray(img)
+        draw = ImageDraw.Draw(img)
+
+        for detection in detections:
+            class_idx, confidence_score, cx, cy, w, h = detection
+
+            xmin = int((cx - (w / 2)))
+            ymin = int((cy - (h / 2)))
+            xmax = int((cx + (w / 2)))
+            ymax = int((cy + (h / 2)))
+            
+            draw.rectangle((xmin, ymin, xmax, ymax), outline=color, width=1)
+            draw.text(((xmin, ymin)), f'{name_list[int(class_idx)]}', font=font, fill=color)
+            
+        img = cv2.resize(np.array(img), (img_w, img_h))
+
+        cv2.imshow('Image', img)
+        key = cv2.waitKey(0)
+        if key == 27:
+            break
+        elif key == ord('c'):
+            tmp_num += 1
+            img_path = f'captured_images/image_{tmp_num:05d}.jpg'
+            cv2.imwrite(img_path, img)
+            
+    
+    cv2.destroyAllWindows()
+
+
+def get_plate_number(detections, network_height, cls_name_list):
+    detect_num = len(detections)
+    if detect_num < 4:
+        return 'None', detections
+    elif detect_num > 8:
+        detections = np.delete(detections, np.argsort(detections[..., 1])[:detect_num-8], axis=0)
+    detections = detections[np.argsort(detections[..., 3])]
+    
+    thresh = int(network_height / 4)
+    y1 = detections[1][3] - detections[0][3]
+    y2 = detections[3][3] - detections[2][3]
+    
+    # 외교 번호판
+    if y1 > thresh:
+        detections[1:] = detections[1:][np.argsort(detections[1:, 2])]
+    
+    # 운수/건설 번호판
+    elif y2 > thresh:
+        detections[:3] = detections[:3][np.argsort(detections[:3, 2])]
+        detections[3:] = detections[3:][np.argsort(detections[3:, 2])]
+    
+    # 일반 가로형 번호판
+    else:
+        detections = detections[np.argsort(detections[..., 2])]
+
+    plate_num = ''
+    for cls_idx in detections[..., 0]:
+        plate_num += cls_name_list[int(cls_idx)]
+    
+    return plate_num, detections
+    
+    
 if __name__ == "__main__":
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"]= '0'
     
-    check_map_by_custom_map_calculator()
+    # check_map_by_custom_map_calculator()
     # check_map_by_coco_map_calculator()
+    # check_map_by_torchmetrics_map_calculator()
     # make_pred_result_file_for_public_map_calculator()
     # show_result()
+    # save_result()
     # make_video()
     # check_inference_speed()
     # check_inference_speed_by_image()
+    show_lpr_result_by_full_img()
+    # show_lpr_result()
+    

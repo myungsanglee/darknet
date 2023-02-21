@@ -1,0 +1,5 @@
+classes= 72
+train  = /home/fssv2/myungsang/datasets/lpr/train.txt
+valid  = /home/fssv2/myungsang/datasets/lpr/val.txt
+names = /home/fssv2/myungsang/datasets/lpr/lpr.names
+backup = custom_train/yolov4-tiny-custom-v4_coco-person_416/weights/
