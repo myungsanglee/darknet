@@ -1,7 +1,7 @@
 #!/bin/bash
-export CUDA_VISIBLE_DEVICES=1
+export CUDA_VISIBLE_DEVICES=0
 
-./darknet detector train \
+#./darknet detector train \
 custom_train/focus/crowded_people/576/focus.data \
 custom_train/focus/crowded_people/576/yolov4-tiny-custom-v4_576.cfg \
 custom_train/focus/crowded_people/576/weights/yolov4-tiny-custom-v4_576_last.weights \
@@ -13,9 +13,9 @@ custom_train/focus/crowded_people/416/yolov4-tiny-custom-v4_416.cfg \
 custom_train/focus/crowded_people/416/yolov4-tiny-custom-v4_coco-person_416.conv.27 \
 -map
 
-#./darknet detector train \
-custom_train/yolov4-tiny-3l-custom-04-lpr/lpr.data \
-custom_train/yolov4-tiny-3l-custom-04-lpr/yolov4-tiny-3l-custom.cfg \
+./darknet detector train \
+custom_train/yolov4-tiny-3l-custom-06-voc/voc.data \
+custom_train/yolov4-tiny-3l-custom-06-voc/yolov4-tiny-3l-custom.cfg \
 -map
 
 #./darknet detector train \
