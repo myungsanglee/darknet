@@ -1491,15 +1491,18 @@ def show_lpr_result_by_full_img():
         # LPR
         #######################################################################################################
         
-        'custom_train/yolov4-tiny-3l-custom-04-lpr/yolov4-tiny-3l-custom.cfg',
-        'custom_train/yolov4-tiny-3l-custom-04-lpr/lpr.data',
-        'custom_train/yolov4-tiny-3l-custom-04-lpr/weights/yolov4-tiny-3l-custom_best.weights',
+        # 'custom_train/yolov4-tiny-3l-custom-04-lpr/yolov4-tiny-3l-custom.cfg',
+        # 'custom_train/yolov4-tiny-3l-custom-04-lpr/lpr.data',
+        # 'custom_train/yolov4-tiny-3l-custom-04-lpr/weights/yolov4-tiny-3l-custom_best.weights',
+        
+        'custom_train/yolov4-tiny-3l-custom-05-lpr/yolov4-tiny-3l-custom.cfg',
+        'custom_train/yolov4-tiny-3l-custom-05-lpr/lpr.data',
+        'custom_train/yolov4-tiny-3l-custom-05-lpr/weights/yolov4-tiny-3l-custom_best.weights',
         
         batch_size=1
     )
 
-    # val_txt_path = '/home/fssv2/myungsang/datasets/lpr/test.txt'
-    val_txt_path = '/home/fssv2/myungsang/datasets/lpr/test_2.txt'
+    val_txt_path = '/home/fssv2/myungsang/datasets/lpr/test_v1.txt'
     with open(val_txt_path, 'r') as f:
         img_list = f.read().splitlines()
         
@@ -1516,63 +1519,64 @@ def show_lpr_result_by_full_img():
         name_list = f.read().splitlines()
     
     for img_path in tqdm(img_list[:]):
+        cv_img = cv2.imread(img_path)
+        img_h, img_w, _ = cv_img.shape
+        img = Image.fromarray(cv_img)
+        draw = ImageDraw.Draw(img)
+        
         txt_path = img_path.rsplit('.', 1)[0] + '.txt'
         with open(txt_path, 'r') as f:
             labels = f.read().splitlines()
         # labels = [[float(y) for y in x.split(' ')[1:]] for x in labels if x.split(' ')[0] == '8']
         labels = [[float(y) for y in x.split(' ')[1:]] for x in labels if x.split(' ')[0] == '0']
+        label = labels[0]
         
-        cv_img = cv2.imread(img_path)
-        img_h, img_w, _ = cv_img.shape
+        cx = label[0] * img_w
+        cy = label[1] * img_h
+        w = label[2] * img_w
+        h = label[3] * img_h
         
-        img = Image.fromarray(cv_img)
-        draw = ImageDraw.Draw(img)
+        xmin = int(cx - (w / 2))
+        ymin = int(cy - (h / 2))
+        xmax = int(cx + (w / 2))
+        ymax = int(cy + (h / 2))
         
-        for label in labels:
-            cx = label[0] * img_w
-            cy = label[1] * img_h
-            w = label[2] * img_w
-            h = label[3] * img_h
-            
-            xmin = int(cx - (w / 2))
-            ymin = int(cy - (h / 2))
-            xmax = int(cx + (w / 2))
-            ymax = int(cy + (h / 2))
+        crop_img = cv_img[ymin:ymax, xmin:xmax].copy()
         
-            crop_img = cv_img[ymin:ymax, xmin:xmax].copy()
+        detections = get_detection_for_video(
+            crop_img, 
+            network, 
+            class_names,
+            thresh=0.4
+        )
+        # [cls_idx, confidence, cx, cy, w, h]
+        detections = np.array([[class_names.index(x[0]), x[1], x[2][0], x[2][1], x[2][2], x[2][3]] for x in detections])
+        
+        plate_num, detections = get_plate_number(detections, height, name_list)
+        true_label = os.path.basename(img_path).rsplit('.', 1)[0]
+        if len(true_label.split('-')) > 1:
+            true_label = true_label.split('-')[0]
+        if plate_num == true_label:
+            true_num += 1
+        print(f'True: {true_label}, Pred: {plate_num}')
+        
+        
+        # show image
+        draw.rectangle((xmin, ymin, xmax, ymax), outline=color, width=1)
+        
+        txt_w, txt_h = draw.textsize(plate_num, font=font)
+        draw.text(((xmin, max(ymin - txt_h, 0))), f'{plate_num}', font=font, fill=color)
+        
+        # draw plate number
+        for detection in detections:
+            _, _, cx, cy, w, h = detection
             
-            detections = get_detection_for_video(
-                crop_img, 
-                network, 
-                class_names,
-                thresh=0.4
-            )
-            # [cls_idx, confidence, cx, cy, w, h]
-            detections = np.array([[class_names.index(x[0]), x[1], x[2][0], x[2][1], x[2][2], x[2][3]] for x in detections])
+            pxmin = xmin + int((cx - (w / 2)) * (xmax - xmin) / width)
+            pxmax = xmin + int((cx + (w / 2)) * (xmax - xmin) / width)
+            pymin = ymin + int((cy - (h / 2)) * (ymax - ymin) / height)
+            pymax = ymin + int((cy + (h / 2)) * (ymax - ymin) / height)
             
-            plate_num, detections = get_plate_number(detections, height, name_list)
-            true_label = os.path.basename(img_path).rsplit('.', 1)[0]
-            if len(true_label.split('-')) > 1:
-                true_label = true_label.split('-')[0]
-            if plate_num == true_label:
-                true_num += 1
-            print(f'True: {true_label}, Pred: {plate_num}')
-            
-            draw.rectangle((xmin, ymin, xmax, ymax), outline=color, width=1)
-            
-            txt_w, txt_h = draw.textsize(plate_num, font=font)
-            draw.text(((xmin, max(ymin - txt_h, 0))), f'{plate_num}', font=font, fill=color)
-            
-            # draw plate number
-            for detection in detections:
-                _, _, cx, cy, w, h = detection
-                
-                pxmin = xmin + int((cx - (w / 2)) * (xmax - xmin) / width)
-                pxmax = xmin + int((cx + (w / 2)) * (xmax - xmin) / width)
-                pymin = ymin + int((cy - (h / 2)) * (ymax - ymin) / height)
-                pymax = ymin + int((cy + (h / 2)) * (ymax - ymin) / height)
-                
-                draw.rectangle((pxmin, pymin, pxmax, pymax), outline=color, width=1)
+            draw.rectangle((pxmin, pymin, pxmax, pymax), outline=color, width=1)
                 
         
         img = np.array(img)
@@ -1738,6 +1742,30 @@ def check_plate(detections):
         detections = np.delete(detections, delete_idx, axis=0)
     
     return detections
+
+
+def letterbox(image, new_shape=(640, 640), color=(114, 114, 114)):
+    # Resize and pad image while meeting stride-multiple constraints
+    shape = image.shape[:2]  # current shape [height, width]
+    if isinstance(new_shape, int):
+        new_shape = (new_shape, new_shape)
+    
+    # Scale ratio (new / old)
+    r = min(new_shape[0] / shape[0], new_shape[1] / shape[1])
+    
+    # Compute padding
+    new_unpad = int(round(shape[1] * r)), int(round(shape[0] * r))
+    dw, dh = new_shape[1] - new_unpad[0], new_shape[0] - new_unpad[1]  # wh padding
+
+    dw /= 2  # divide padding into 2 sides
+    dh /= 2
+    
+    if shape[::-1] != new_unpad:  # resize
+        image = cv2.resize(image, new_unpad, interpolation=cv2.INTER_LINEAR)
+    top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
+    left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
+    image = cv2.copyMakeBorder(image, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
+    return image
     
     
 if __name__ == "__main__":
@@ -1754,6 +1782,6 @@ if __name__ == "__main__":
     # save_videos()
     # make_video()
     # check_inference_speed()
-    check_inference_speed_by_image()
-    # show_lpr_result_by_full_img()
+    # check_inference_speed_by_image()
+    show_lpr_result_by_full_img()
     # show_lpr_result()

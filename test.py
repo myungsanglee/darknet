@@ -1,17 +1,40 @@
 
 
-def solution(A, B):
+
+
+
+
+
+import math
+def solution(arr):
     answer = 0
-
-    for a, b in zip(sorted(A), sorted(B, reverse=True)):
-        answer += a*b
-
+    
+    print(math.gcd(1, 2, 4, 5))
+    
+    
     return answer
 
 
 
+
 if __name__ == "__main__":
-    A = [1, 4, 2]
-    B = [5, 4, 4]
-    print(solution(A, B))
-    
+    arr = [2,6,8,14]
+    a = 4
+    b = 7
+    print(solution(arr))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

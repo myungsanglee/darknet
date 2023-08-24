@@ -1,0 +1,5 @@
+classes= 73
+train  = custom_train/yolov4-tiny-3l-custom-05-lpr/train_v3.txt
+valid  = custom_train/yolov4-tiny-3l-custom-05-lpr/val_v4.txt
+names = custom_train/yolov4-tiny-3l-custom-05-lpr/lpr_en.names
+backup = custom_train/yolov4-tiny-3l-custom-05-lpr/weights/

@@ -1,5 +1,5 @@
 ./darknet detector calc_anchors \
-custom_train/focus/crowded_people/416/focus.data \
+custom_train/focus/230717_F/rear/yolov4-tiny-custom-v4_416/focus.data \
 -num_of_clusters 9 \
 -width 416 \
 -height 416
